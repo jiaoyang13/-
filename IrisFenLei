@@ -1,0 +1,46 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import load_iris
+from collections import defaultdict
+
+# 单层感知器，区分花的种类的方法
+
+dataset = load_iris()
+X = np.array(dataset.data) #获取花的属性
+Y = np.array(dataset.target) #获取花的种类
+
+X = X[0 : 75, :] #只取两类花
+Y = Y[: 75]
+array_index = np.where(Y == 0)
+Y[array_index] = -1  #把代表类型的值0替换为-1，这里为了配合单层感知器的激活函数
+#Y = np.array([Y])
+
+X1= np.ones(X.shape[0]) #神经网络对应的输入x[0]
+X = np.insert(X, 0, values=X1.T, axis=1) #把1插入到属性数据的第0列
+
+W = np.random.random(5) #取值初始化一行5列， 取值范围0到1
+print('W=', W)
+lr = 0.11 #学习率
+n = 0
+O = 0 #神经网络输出
+
+def update():
+    global X, Y, W, lr, n, O
+    n += 1
+    O = np.sign(np.dot(X, W.T))
+    W_C = lr * ((Y - O.T).dot(X))/int(X.shape[0])
+    W = W + W_C
+    print('w=', W)
+    #print('O=', O)
+
+for _ in range(1000):
+    update() #更新权值
+
+    if(O == Y.T).all():
+        print('n=', n)
+        print('O=', O)
+        print('W', W)
+        print('Y', Y)
+        break
