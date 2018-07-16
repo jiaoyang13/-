@@ -1,0 +1,97 @@
+import cx_Oracle
+
+global cursor
+global conn
+
+class OracleTool(object):
+
+    def __init__(self, urserName, passWord, url, mashineName):
+
+        self.urserName = urserName
+        self.passWord = passWord
+        self.url = url
+        self.mashineName = mashineName
+
+    def CreatConnect(self):
+
+        print('self.urserName=', self.urserName)
+        print('self.passWord=', self.passWord)
+
+        # 建立和数据库系统的连接
+        connectURL = self.urserName + '/' + self.passWord + '@' + self.url + '/' + mashineName
+        print('connectURL=', connectURL)
+        conn = cx_Oracle.connect(connectURL)
+        #conn = cx_Oracle.connect('lcb／lcbdat／@10.10.140.83/lcb')  # (用户名/密码@服务器地址/服务器名)
+
+        # 获取操作游标
+        cursor = conn.cursor()
+
+        return cursor
+
+    def CreatTable(self):
+
+        # 执行SQL，创建一个表
+        cursor.execute('create table tb_user(id number, name varchar2(50), password verchar(50), primary key(id))')
+
+        # 关闭连接，释放资源
+        cursor.close()
+
+        print('Completed!')
+
+        return
+
+    def InsertData(self):
+
+        # 插入一条数据
+        cursor.execute('insert into ta_user values(1, ''admin'', ''password'')')
+
+        # 再插入一条数据
+        param1 = {'id' : 2, 'n' : 'admin', 'p' : 'password'}
+        cursor.executemany('insert into tb_user value(:id, :n, :p)', param1)
+
+        # 插入多条数据
+        param2 = [{'id' : 3, 'n' : 'admin', 'p' : 'password'}, {'id' : 4, 'n' : 'admin', 'p' : 'password'}, {'id' : 5, 'n' : 'admin', 'p' : 'password'}]
+        cursor.executemany('insert into tb_user value(:id, :n, :p)', param2)
+
+        cursor.close()
+
+        # 提交更改
+        conn.commit()
+
+        conn.close()
+
+        return
+
+    def SearchData(self):
+
+        # 执行查询 语句
+        cursor.execute('select * from tb_user')
+
+        # 获取一条数据
+        one = cursor.fetchone()
+        print('1 : id:%s, name:%s, password:%s' % one)
+
+        # 获取两条数据, 注意： 游标已经到了第二条
+        two = cursor.fetchmany(2)
+        print('2:', two[0], '3:', two[1])
+
+        # 条件查询
+        cursor.prepare('select * from tb_user where id <= :id')
+        cursor.execute(None, {'id' : 5})
+
+        cursor.close()
+        conn.close
+
+        return
+
+userName = 'lcb'
+userPassWord = 'lcbdat'
+url = '10.10.140.83:1521'
+mashineName = 'lcb'
+
+
+oracleTool = OracleTool(userName, userPassWord, url, mashineName)
+oracleTool.CreatConnect()
+#oracleTool.CreatTable()
+#oracleTool.InsertData()
+#oracleTool.SearchData()
